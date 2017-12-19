@@ -29,8 +29,8 @@ import org.jnativehook.keyboard.NativeKeyAdapter;
 import org.jnativehook.keyboard.NativeKeyEvent;
 
 import keyboard.AbstractShortcutService;
-import keyboard.NativeHookShortcutService;
 import keyboard.AbstractShortcutService.Button;
+import keyboard.NativeHookShortcutService;
 
 public class Main {
 
@@ -59,7 +59,7 @@ public class Main {
 	public static void main(String args[]) {
 		try {
 			initNativeHook();
-			
+
 			// Initializing variables
 			shortcutService = new NativeHookShortcutService();
 			shortcutService.initButtonNames();
@@ -191,7 +191,8 @@ public class Main {
 			startButton.setFocusable(true);
 			frame.getContentPane().add(startButton);
 			startButton.addActionListener((a) -> {
-				changeState();
+				if (lastShortcut != shortcutService.getShortcutFor("+", Button.Enter))
+					changeState();
 			});
 
 			startButton.setBackground(VERY_DARK_GREY);
@@ -346,9 +347,15 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-	
+
+	private static String lastShortcut = "";
+
 	private static void processShortcut() {
 		String currentShortcut = shortcutService.getShortcut("+");
+		if (currentShortcut.equals(lastShortcut))
+			return;
+
+		lastShortcut = currentShortcut;
 		if (currentShortcut.equals(exitShortcutField.getText())) {
 			exit();
 		}
@@ -363,6 +370,7 @@ public class Main {
 			public void nativeKeyReleased(NativeKeyEvent e) {
 				shortcutService
 						.unpressButton(shortcutService.getButtonOfName(NativeKeyEvent.getKeyText(e.getKeyCode())));
+				lastShortcut = "";
 			}
 
 			@Override
@@ -378,6 +386,7 @@ public class Main {
 			public void nativeKeyReleased(NativeKeyEvent e) {
 				shortcutService
 						.unpressButton(shortcutService.getButtonOfName(NativeKeyEvent.getKeyText(e.getKeyCode())));
+				lastShortcut = "";
 			}
 
 			@Override
@@ -393,6 +402,7 @@ public class Main {
 			public void nativeKeyReleased(NativeKeyEvent e) {
 				shortcutService
 						.unpressButton(shortcutService.getButtonOfName(NativeKeyEvent.getKeyText(e.getKeyCode())));
+				lastShortcut = "";
 			}
 
 			@Override
@@ -402,7 +412,7 @@ public class Main {
 			}
 		};
 	}
-	
+
 	private static void initNativeHook() {
 		initListeners();
 		try {
