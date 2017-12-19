@@ -15,8 +15,15 @@ public abstract class AbstractShortcutService {
 	}
 
 	public synchronized void pressButton(Button button) {
+		if (button == null)
+			return;
 		if (!pressedButtons.contains(button))
 			pressedButtons.add(button);
+	}
+
+	public synchronized void unpressButton(Button button) {
+		if (pressedButtons.contains(button))
+			pressedButtons.remove(button);
 	}
 
 	protected void setButtonName(Button button, String name) {
@@ -24,15 +31,12 @@ public abstract class AbstractShortcutService {
 	}
 
 	public Button getButtonOfName(String name) {
-		return dictionary.get(name);
+		if (dictionary.containsKey(name))
+			return dictionary.get(name);
+		return null;
 	}
 
 	public abstract String getShortcutFor(String delimeter, Button... buttons);
-
-	public synchronized void unpressButton(Button button) {
-		if (pressedButtons.contains(button))
-			pressedButtons.remove(button);
-	}
 
 	public synchronized String getShortcut(String delimeter) {
 		if (pressedButtons.isEmpty())

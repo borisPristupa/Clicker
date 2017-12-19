@@ -56,24 +56,13 @@ public class Main {
 	};
 	private static Thread clickingThread;
 
-	static {
-		initListeners();
-		try {
-			GlobalScreen.registerNativeHook();
-		} catch (NativeHookException exxx) {
-			JOptionPane.showMessageDialog(null, exxx);
-		}
-
-		currentListener = mainListener;
-		GlobalScreen.addNativeKeyListener(currentListener);
-	}
-
 	public static void main(String args[]) {
 		try {
+			initNativeHook();
+			
 			// Initializing variables
 			shortcutService = new NativeHookShortcutService();
 			shortcutService.initButtonNames();
-			currentListener = mainListener;
 			running = false;
 			frame = new JFrame("Clicker");
 			startButton = new JButton("GO");
@@ -267,16 +256,6 @@ public class Main {
 
 	}
 
-	private static void processShortcut() {
-		String currentShortcut = shortcutService.getShortcut("+");
-		if (currentShortcut.equals(exitShortcutField.getText())) {
-			exit();
-		}
-		if (currentShortcut.equals(restartShortcutField.getText())) {
-			changeState();
-		}
-	}
-
 	private static void exit() {
 		try {
 			GlobalScreen.unregisterNativeHook();
@@ -367,6 +346,16 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void processShortcut() {
+		String currentShortcut = shortcutService.getShortcut("+");
+		if (currentShortcut.equals(exitShortcutField.getText())) {
+			exit();
+		}
+		if (currentShortcut.equals(restartShortcutField.getText())) {
+			changeState();
+		}
+	}
 
 	private static void initListeners() {
 		mainListener = new NativeKeyAdapter() {
@@ -374,7 +363,6 @@ public class Main {
 			public void nativeKeyReleased(NativeKeyEvent e) {
 				shortcutService
 						.unpressButton(shortcutService.getButtonOfName(NativeKeyEvent.getKeyText(e.getKeyCode())));
-				processShortcut();
 			}
 
 			@Override
@@ -413,5 +401,17 @@ public class Main {
 				restartShortcutField.setText(shortcutService.getShortcut("+"));
 			}
 		};
+	}
+	
+	private static void initNativeHook() {
+		initListeners();
+		try {
+			GlobalScreen.registerNativeHook();
+		} catch (NativeHookException exxx) {
+			JOptionPane.showMessageDialog(null, exxx);
+		}
+
+		currentListener = mainListener;
+		GlobalScreen.addNativeKeyListener(currentListener);
 	}
 }
